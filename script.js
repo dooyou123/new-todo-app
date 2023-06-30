@@ -31,34 +31,56 @@ function addTask(task) {
   list.appendChild(listItem);
 }
 
-function initClient() {
-  gapi.client
-    .init({
-      apiKey: API_KEY,
-      clientId: CLIENT_ID,
-      scope: SCOPE
-    })
-    .then(() => {
-      // 이 부분에서 로그인 상태를 확인하고 로그인/로그아웃 버튼 상태를 업데이트할 수 있습니다.
-    })
-    .catch((error) => {
-      console.error("Error initializing Google client", error);
-    });
-}
-
 gapi.load("client:auth2", initClient);
 
+function initClient() {
+    // Google API 클라이언트 초기화
+    gapi.client
+      .init({
+        apiKey: "<AIzaSyBNnUzoqs3GJDCy_LNIWpSvni3XWX1nneU>",
+        clientId: "<171103722680-b91r63bg0o6bhmtd3vd62ti5ki802ppe.apps.googleusercontent.com>",
+        discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/sheets/v4/rest"],
+        scope: "https://www.googleapis.com/auth/spreadsheets",
+      })
+      .then(() => {
+        // 초기화가 성공하면 로그인/로그아웃 버튼 상태를 업데이트할 수 있습니다.
+        updateLoginStatus();
+      })
+      .catch(() => {
+        console.log("Error initializing Google client Object");
+      });
+  }
+  
+  // updateLoginStatus() 함수는 사용자의 로그인 상태를 확인하고, 로그인/로그아웃 버튼 상태를 업데이트하는 기능을 구현합니다.
+function updateLoginStatus() {
+    const authInstance = gapi.auth2.getAuthInstance();
+    const isSignedIn = authInstance.isSignedIn.get();
+  
+    if (isSignedIn) {
+      // 로그인된 상태라면 로그아웃 버튼을 보여줍니다.
+      document.getElementById("loginBtn").style.display = "none";
+      document.getElementById("logoutBtn").style.display = "block";
+    } else {
+      // 로그인되지 않은 상태라면 로그인 버튼을 보여줍니다.
+      document.getElementById("loginBtn").style.display = "block";
+      document.getElementById("logoutBtn").style.display = "none";
+    }
+}
+  
+  // signIn() 함수는 사용자를 로그인시키는 기능을 구현합니다.
 function signIn() {
-  gapi.auth2
-    .getAuthInstance()
-    .signIn()
-    .then(() => {
-      // 로그인 후 데이터 격납 및 동기화 처리
+    const authInstance = gapi.auth2.getAuthInstance();
+    authInstance.signIn().then(() => {
+      updateLoginStatus();
     });
 }
-
+  
+  // signOut() 함수는 사용자를 로그아웃시키는 기능을 구현합니다.
 function signOut() {
-  gapi.auth2.getAuthInstance().signOut();
+    const authInstance = gapi.auth2.getAuthInstance();
+    authInstance.signOut().then(() => {
+      updateLoginStatus();
+    });
 }
 
 function setTodoListToSheet(task) {
